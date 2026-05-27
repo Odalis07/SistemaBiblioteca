@@ -6,28 +6,30 @@ from flask_migrate import Migrate
 from config import Config
 from models import db, Usuario
 
-
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# CONFIGURACIÓN ANTICAÍDAS POSTGRESQL (Añadido por seguridad)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_recycle": 280,
+    "pool_pre_ping": True
+}
+
 # BASE DE DATOS
 db.init_app(app)
-
 migrate = Migrate(app, db)
-
 bcrypt = Bcrypt(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-
 @login_manager.user_loader
 def load_user(user_id):
     return Usuario.query.get(int(user_id))
 
 
-# RUTAS
+# --- RUTAS DE ACCESO ---
 
 @app.route('/')
 def home():
@@ -36,6 +38,9 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+        
     if request.method == 'POST':
         correo = request.form['correo']
         password = request.form['password']
@@ -87,11 +92,44 @@ def forgot_password():
     return render_template('forgot_password.html')
 
 
-# INDEX / DASHBOARD
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Has cerrado sesión correctamente', 'info')
+    return redirect(url_for('login'))
+
+
+# --- RUTAS DEL SISTEMA DE BIBLIOTECA (PROTEGIDAS) ---
+
 @app.route('/index')
 @login_required
 def dashboard():
     return render_template('index.html')
+
+
+@app.route('/libros')
+@login_required
+def libros():
+    return render_template('libros.html')
+
+
+@app.route('/autores')
+@login_required
+def autores():
+    return render_template('autores.html')
+
+
+@app.route('/prestamos')
+@login_required
+def prestamos():
+    return render_template('prestamos.html')
+
+
+@app.route('/multas')
+@login_required
+def multas():
+    return render_template('multas.html')
 
 
 if __name__ == '__main__':
