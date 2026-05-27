@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Registro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Registro</h1>
+
+        <form method="POST">
+          <input type="text" name="nombre" placeholder="Nombre" required />
+          <input type="email" name="correo" placeholder="Correo" required />
+          <input
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            required
+          />
+
+          <button type="submit">Crear Cuenta</button>
+        </form>
+
+        <div class="links">
+          <a href="{{ url_for('login') }}">Volver al login</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
