@@ -10,6 +10,17 @@
       <div class="card">
         <h1>Registro</h1>
 
+        <div
+          class="{% if category == 'warning' %}alert-warning{% else %}alert-danger{% endif %}"
+          style="
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+          "
+        ></div>
+
         <form method="POST">
           <input type="text" name="nombre" placeholder="Nombre" required />
           <input type="email" name="correo" placeholder="Correo" required />
@@ -18,6 +29,36 @@
             name="password"
             placeholder="Contraseña"
             required
+          />
+
+          <select
+            name="pregunta_secreta"
+            required
+            style="
+              width: 100%;
+              padding: 10px;
+              margin-bottom: 15px;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              box-sizing: border-box;
+              font-size: 0.9rem;
+              background-color: #fff;
+            "
+          >
+            <option value="" disabled selected>
+              Selecciona una pregunta de seguridad
+            </option>
+            {% for preg in preguntas %}
+            <option value="{{ preg }}">{{ preg }}</option>
+            {% endfor %}
+          </select>
+
+          <input
+            type="text"
+            name="respuesta_secreta"
+            placeholder="Respuesta Secreta"
+            required
+            autocomplete="off"
           />
 
           <button type="submit">Crear Cuenta</button>

@@ -16,13 +16,16 @@ class Usuario(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
     telefono = db.Column(db.String(20))
     direccion = db.Column(db.String(200))
-    rol = db.Column(db.String(20), default='lector')
+    rol = db.Column(db.String(20), default='administrador')
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+
+    
+    pregunta_secreta = db.Column(db.String(255), nullable=True) 
+ 
+    respuesta_secreta = db.Column(db.String(255), nullable=True)
 
     prestamos = db.relationship('Prestamo', backref='usuario', lazy=True)
     multas = db.relationship('Multa', backref='usuario', lazy=True)
-
-
 
 # LIBROS
 
