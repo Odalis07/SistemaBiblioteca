@@ -9,7 +9,7 @@ from models import db, Usuario
 app = Flask(__name__)
 app.config.from_object(Config)
 
-# CONFIGURACIÓN ANTICAÍDAS POSTGRESQL (Añadido por seguridad)
+
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_recycle": 280,
     "pool_pre_ping": True
