@@ -1,0 +1,143 @@
+:root {
+  --primary-color: #2c3e50;
+  --accent-color: #3498db;
+  --accent-hover: #2980b9;
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --text-muted: #7f8c8d;
+  --border-color: #e0e0e0;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #f8fafc;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.contenedor {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.seccion {
+  padding: 60px 0;
+}
+
+.header {
+  background-color: var(--primary-color);
+  padding: 15px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  height: 50px;
+  width: auto;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  display: block;
+}
+
+.logo img:hover {
+  transform: scale(1.03);
+}
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.titulo {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.menu {
+  display: flex;
+  gap: 25px;
+}
+
+.menu a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+}
+
+.menu a:hover {
+  color: #ffffff;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg-gradient);
+}
+
+.contenido-principal {
+  background-color: var(--card-bg);
+  padding: 50px 40px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  max-width: 600px;
+}
+
+.contenido-principal h2 {
+  color: var(--primary-color);
+  font-size: 2.2rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.contenido-principal p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.footer {
+  background-color: var(--primary-color);
+  padding: 25px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-contenido {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 400;
+}

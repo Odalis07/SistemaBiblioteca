@@ -1,0 +1,314 @@
+:root {
+  --primary-color: #2c3e50;
+  --accent-color: #3498db;
+  --accent-hover: #2980b9;
+  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --text-muted: #7f8c8d;
+  --border-color: #e0e0e0;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 15px 30px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #f8fafc;
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== LAYOUT ========== */
+.contenedor {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.seccion {
+  padding: 60px 0;
+}
+
+/* ========== HEADER ========== */
+.header {
+  background-color: var(--primary-color);
+  padding: 15px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  height: 50px;
+  width: auto;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  display: block;
+}
+
+.logo img:hover {
+  transform: scale(1.03);
+}
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.titulo {
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.menu {
+  display: flex;
+  gap: 25px;
+}
+
+.menu a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+}
+
+.menu a:hover {
+  color: #ffffff;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+/* Enlace "Salir" con color destacado */
+.menu a[style*="color"] {
+  color: #e74c3c !important;
+}
+.menu a[style*="color"]:hover {
+  color: #ff6b6b !important;
+  border-bottom-color: #e74c3c;
+}
+
+/* ========== MAIN ========== */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;  /* Para que la tabla pueda crecer hacia abajo */
+  background: var(--bg-gradient);
+}
+
+/* Tarjeta de contenido principal */
+.contenido-principal {
+  background-color: var(--card-bg);
+  padding: 40px 35px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  width: 100%;
+}
+
+.contenido-principal h2 {
+  color: var(--primary-color);
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.contenido-principal > p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+
+/* ========== TABLA DE AUTORES ========== */
+.tabla-autores {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tabla-autores thead th {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 600;
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.tabla-autores tbody td {
+  padding: 14px 18px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.tabla-autores tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-autores tbody tr:hover td {
+  background-color: #f0f7ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.08);
+}
+
+/* Enlace de acciones dentro de la tabla (por ejemplo "Ver libros") */
+.tabla-autores .accion {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.tabla-autores .accion:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* Mensaje cuando no hay autores */
+.sin-autores {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-style: italic;
+  background: #fafafa;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border-color);
+}
+
+/* ========== BOTONES (genéricos, por si se usan) ========== */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  text-align: center;
+}
+.btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(52, 152, 219, 0.25);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  background-color: var(--primary-color);
+  padding: 25px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.footer-contenido {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .barra {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .navegacion {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .contenido-principal {
+    padding: 30px 20px;
+  }
+
+  .tabla-autores thead {
+    display: none; /* Oculta cabecera en móvil */
+  }
+
+  .tabla-autores tbody td {
+    display: block;
+    text-align: right;
+    padding: 12px 15px;
+    position: relative;
+  }
+
+  .tabla-autores tbody td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+  }
+
+  .tabla-autores tbody tr {
+    display: block;
+    margin-bottom: 15px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: #fff;
+  }
+
+  .tabla-autores tbody tr:last-child {
+    margin-bottom: 0;
+  }
+}
