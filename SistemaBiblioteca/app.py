@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
+from models import db, Libro
 
 from config import Config
 from models import db, Usuario
@@ -26,7 +27,7 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(int(user_id))
+    return db.session.get(Usuario, int(user_id))
 
 
 # --- RUTAS DE ACCESO ---
@@ -111,7 +112,8 @@ def dashboard():
 @app.route('/libros')
 @login_required
 def libros():
-    return render_template('libros.html')
+    todos_los_libros = Libro.query.all()
+    return render_template('libros.html', libros=todos_los_libros)
 
 
 @app.route('/autores')

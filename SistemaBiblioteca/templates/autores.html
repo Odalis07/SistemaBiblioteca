@@ -10,26 +10,30 @@
   <body>
     <header class="header">
       <div class="contenedor">
+        
         <div class="barra">
           <div class="logo">
-            <a href="index.html">
-              <img src="../static/img/header.jpg" alt="Biblioteca" />
+            <a href="index.html" class="logo-enlace">
+              <img src="../static/img/logo_biblioteca.svg" alt="Biblioteca" />
             </a>
           </div>
 
-          <nav class="navegacion">
-            <h1 class="titulo">Sistema de Biblioteca</h1>
-
-            <div class="menu">
-              <a href="index.html">Inicio</a>
-              <a href="libros.html">Libros</a>
-              <a href="autores.html">Autores</a>
-              <a href="prestamos.html">Préstamos</a>
-              <a href="multas.html">Multas</a>
-              <a href="login.html" style="color: #e74c3c">Salir</a>
+          <div class="acciones-usuario">
+            <img src="../static/img/ion_person-sharp.svg" class="icono-perfil">
+            <img src="../static/img/subway_bell.svg" class="icono-notificacion">
             </div>
-          </nav>
         </div>
+
+        <nav class="navegacion">
+          <div class="menu">
+            <a href="index.html">Inicio</a>
+            <a href="libros.html">Libros</a>
+            <a href="autores.html" class="activo">Autores</a>
+            <a href="prestamos.html">Préstamos</a>
+            <a href="multas.html">Multas</a>
+          </div>
+        </nav>
+
       </div>
     </header>
 
@@ -37,9 +41,9 @@
       <section class="contenedor seccion">
         <div class="contenido-principal">
           <h2>Autores</h2>
-
           <p>Consulta información sobre los autores registrados.</p>
         </div>
+        <button class="btn">Añadir autor</button>
       </section>
     </main>
   </body>

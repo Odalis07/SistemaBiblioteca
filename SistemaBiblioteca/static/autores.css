@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #2c3e50;
+  --primary-color: #618EA3;
   --accent-color: #3498db;
   --accent-hover: #2980b9;
   --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -39,23 +39,37 @@ body {
   padding: 60px 0;
 }
 
-/* ========== HEADER ========== */
 .header {
   background-color: var(--primary-color);
-  padding: 15px 0;
+  padding: 30px 0 20px 0; /* Más espacio arriba, menos abajo */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* El contenedor ahora apila la barra superior y la navegación inferior */
+.header .contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 35px; /* Espacio vertical entre logo y menú */
+}
+
+/* Fila superior */
 .barra {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.logo-enlace {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
 }
 
 .logo img {
-  height: 50px;
+  height: 45px;
   width: auto;
-  border-radius: var(--radius);
   transition: var(--transition);
   display: block;
 }
@@ -64,37 +78,55 @@ body {
   transform: scale(1.03);
 }
 
-.navegacion {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
 .titulo {
   color: #ffffff;
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.acciones-usuario {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  cursor: pointer;
+}
+
+/* Fila inferior (Navegación) */
+.navegacion {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* Centra el menú horizontalmente */
 }
 
 .menu {
   display: flex;
-  gap: 25px;
+  justify-content: space-between;
+  width: 80%; /* Controla qué tan separados están los enlaces */
+  max-width: 800px;
 }
 
 .menu a {
-  color: #cbd5e1;
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  padding: 6px 0;
+  font-weight: 700; /* Texto más grueso como en la imagen */
+  font-size: 1rem;
+  padding: 5px 0;
   border-bottom: 2px solid transparent;
   transition: var(--transition);
 }
 
 .menu a:hover {
-  color: #ffffff;
-  border-bottom: 2px solid var(--accent-color);
+  border-bottom: 2px solid #ffffff;
+}
+
+/* Enlace "Salir" (si decides descomentarlo) */
+.menu a[style*="color"] {
+  color: #e74c3c !important;
+}
+.menu a[style*="color"]:hover {
+  color: #ff6b6b !important;
+  border-bottom-color: #e74c3c;
 }
 
 /* Enlace "Salir" con color destacado */
@@ -136,6 +168,12 @@ body {
   color: var(--text-muted);
   font-size: 1rem;
   margin-bottom: 30px;
+}
+
+.acciones-usuario img {
+  width: 28px;          
+  height: auto;         
+  cursor: pointer;     
 }
 
 /* ========== TABLA DE AUTORES ========== */
@@ -206,19 +244,24 @@ body {
 .btn {
   display: inline-block;
   padding: 10px 20px;
-  background-color: var(--accent-color);
+  background-color: #618EA3;
   color: #ffffff;
   border: none;
-  border-radius: var(--radius);
+  border-radius: 50px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
   transition: var(--transition);
   text-decoration: none;
   text-align: center;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
 }
 .btn:hover {
-  background-color: var(--accent-hover);
+  background-color: #4A6E80;
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(52, 152, 219, 0.25);
 }
@@ -311,4 +354,10 @@ body {
   .tabla-autores tbody tr:last-child {
     margin-bottom: 0;
   }
+
+.menu a.activo {
+  color: #0000; 
+  border-bottom: 2px solid var(--accent-color);
+  font-weight: 800; 
+}
 }
