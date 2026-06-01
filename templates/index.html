@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio | Biblioteca</title>
+    <link rel="stylesheet" href="../static/styles.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="contenedor">
+        <div class="barra">
+          <div class="logo">
+            <a href="index.html">
+              <img src="../static/img/header.jpg" alt="Biblioteca" />
+            </a>
+          </div>
+
+          <nav class="navegacion">
+            <h1 class="titulo">Sistema de Biblioteca</h1>
+
+            <div class="menu">
+              <a href="{{ url_for('dashboard') }}">Inicio</a>
+              <a href="{{ url_for('libros') }}">Libros</a>
+              <a href="{{ url_for('autores') }}">Autores</a>
+              <a href="{{ url_for('prestamos') }}">Préstamos</a>
+              <a href="{{ url_for('multas') }}">Multas</a>
+              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="contenedor seccion">
+        <div class="contenido-principal">
+          <h2>Bienvenido a la Biblioteca</h2>
+          <p>
+            Explora nuestra colección de libros, administra tus autores,
+            gestiona préstamos y revisa el estado de tus multas fácilmente.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="contenedor footer-contenido">
+        <p>© 2026 Biblioteca Virtual</p>
+      </div>
+    </footer>
+  </body>
+</html>
