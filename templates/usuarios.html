@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
+            </div>
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="info-card">
+            <h2>Administración de usuarios</h2>
+            <p class="subtitle">Visualiza, agrega, edita y elimina colaboradores y lectores con acceso al sistema.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 12px; border-radius: 4px; font-weight: bold; border: 1px solid;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Correo Electrónico</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.nombre }}</td>
+                            <td>{{ u.correo }}</td>
+                            <td>{{ u.telefono or 'N/A' }}</td>
+                            <td>{{ u.direccion or 'N/A' }}</td>
+                            <td><span style="padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; background-color: {% if u.rol == 'administrador' %}#3498db{% else %}#bdc3c7{% endif %}; color: white;">{{ u.rol }}</span></td>
+                            <td>
+                                <button class="btn-action-edit" 
+                                        data-id="{{ u.id }}"
+                                        data-nombre="{{ u.nombre }}"
+                                        data-correo="{{ u.correo }}"
+                                        data-telefono="{{ u.telefono or '' }}"
+                                        data-direccion="{{ u.direccion or '' }}"
+                                        data-rol="{{ u.rol }}"
+                                        data-pregunta="{{ u.pregunta_secreta or '' }}"
+                                        onclick="editUser(this)">Editar</button>
+                                {% if u.id != current_user.id %}
+                                    <button class="btn-action-delete" onclick="confirmDelete('{{ u.id }}')">Eliminar</button>
+                                {% else %}
+                                    <span style="color: #7f8c8d; font-size: 0.85rem; font-style: italic;">Sesión activa</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-btn-add" title="Agregar Usuario" onclick="openModal('addModal')">+</button>
+        <button class="fab-btn fab-btn-delete" title="Eliminar Usuario" onclick="openModal('deleteModal')">🗑</button>
+    </div>
+
+    <!-- ADD USER MODAL -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            <h3 class="modal-title">Agregar nuevo usuario</h3>
+            <form action="{{ url_for('usuarios_add') }}" method="POST">
+                <div class="form-group">
+                    <label for="add_nombre">Nombre completo *</label>
+                    <input type="text" id="add_nombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_correo">Correo electrónico *</label>
+                    <input type="email" id="add_correo" name="correo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_password">Contraseña *</label>
+                    <input type="password" id="add_password" name="password" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_telefono">Teléfono</label>
+                    <input type="text" id="add_telefono" name="telefono" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_direccion">Dirección</label>
+                    <input type="text" id="add_direccion" name="direccion" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_rol">Rol</label>
+                    <select id="add_rol" name="rol" class="form-control">
+                        <option value="lector">Lector</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_pregunta">Pregunta secreta * (para recuperación)</label>
+                    <select id="add_pregunta" name="pregunta_secreta" class="form-control" required>
+                        {% for pregunta in preguntas %}
+                            <option value="{{ pregunta }}">{{ pregunta }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_respuesta">Respuesta secreta *</label>
+                    <input type="text" id="add_respuesta" name="respuesta_secreta" class="form-control" required autocomplete="off">
+                </div>
+                <button type="submit" class="btn-submit">Guardar registro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT USER MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h3 class="modal-title">Editar usuario</h3>
+            <form id="edit_form" action="" method="POST">
+                <div class="form-group">
+                    <label for="edit_nombre">Nombre completo *</label>
+                    <input type="text" id="edit_nombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_correo">Correo electrónico *</label>
+                    <input type="email" id="edit_correo" name="correo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_password">Nueva contraseña (dejar en blanco para mantener la actual)</label>
+                    <input type="password" id="edit_password" name="password" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_telefono">Teléfono</label>
+                    <input type="text" id="edit_telefono" name="telefono" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_direccion">Dirección</label>
+                    <input type="text" id="edit_direccion" name="direccion" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_rol">Rol</label>
+                    <select id="edit_rol" name="rol" class="form-control">
+                        <option value="lector">Lector</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_pregunta">Pregunta secreta (para recuperación)</label>
+                    <select id="edit_pregunta" name="pregunta_secreta" class="form-control">
+                        <option value="">-- Seleccionar nueva pregunta --</option>
+                        {% for pregunta in preguntas %}
+                            <option value="{{ pregunta }}">{{ pregunta }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_respuesta">Nueva respuesta secreta (dejar en blanco para mantener la actual)</label>
+                    <input type="text" id="edit_respuesta" name="respuesta_secreta" class="form-control" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DELETE USER MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3 class="modal-title" style="color: #e74c3c;">Eliminar Usuario</h3>
+            <form action="{{ url_for('usuarios_delete') }}" method="POST">
+                <div class="form-group">
+                    <label for="delete_id">Seleccione el usuario a eliminar:</label>
+                    <select name="id" id="delete_id" class="form-control" required>
+                        {% for u in usuarios %}
+                            {% if u.id != current_user.id %}
+                                <option value="{{ u.id }}">{{ u.nombre }} ({{ u.correo }})</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 10px; font-weight: bold;">
+                        ¡Advertencia! Se eliminarán también todos los préstamos y multas asociados a este usuario.
+                    </p>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #e74c3c;">Confirmar Eliminación</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca virtual</p>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function editUser(btn) {
+            const id = btn.getAttribute('data-id');
+            const nombre = btn.getAttribute('data-nombre');
+            const correo = btn.getAttribute('data-correo');
+            const telefono = btn.getAttribute('data-telefono');
+            const direccion = btn.getAttribute('data-direccion');
+            const rol = btn.getAttribute('data-rol');
+            const pregunta = btn.getAttribute('data-pregunta');
+
+            document.getElementById('edit_form').action = "/usuarios/edit/" + id;
+            document.getElementById('edit_nombre').value = nombre;
+            document.getElementById('edit_correo').value = correo;
+            document.getElementById('edit_telefono').value = telefono;
+            document.getElementById('edit_direccion').value = direccion;
+            document.getElementById('edit_rol').value = rol;
+            document.getElementById('edit_pregunta').value = pregunta;
+            openModal('editModal');
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('delete_id').value = id;
+            openModal('deleteModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
