@@ -96,3 +96,14 @@ class Reporte(db.Model):
     descripcion = db.Column(db.Text)
 
     fecha_generacion = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# AUTORES
+
+class Autor(db.Model):
+    __tablename__ = 'autores'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(150), nullable=False)
+    nacionalidad = db.Column(db.String(100))
+    fecha_nacimiento = db.Column(db.String(50))

@@ -1,46 +1,269 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Libros</title>
-    <link rel="stylesheet" href="../static/styles.css" />
-  </head>
-
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
     <header class="header">
-      <div class="contenedor">
-        <div class="barra">
-          <div class="logo">
-            <a href="index.html">
-              <img src="../static/img/header.jpg" alt="Biblioteca" />
-            </a>
-          </div>
-
-          <nav class="navegacion">
-            <h1 class="titulo">Sistema de Biblioteca</h1>
-
-            <div class="menu">
-               <a href="{{ url_for('dashboard') }}">Inicio</a>
-              <a href="{{ url_for('libros') }}">Libros</a>
-              <a href="{{ url_for('autores') }}">Autores</a>
-              <a href="{{ url_for('prestamos') }}">Préstamos</a>
-              <a href="{{ url_for('multas') }}">Multas</a>
-              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
             </div>
-          </nav>
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
+            </nav>
         </div>
-      </div>
     </header>
 
-    <main class="main">
-      <section class="contenedor seccion">
-        <div class="contenido-principal">
-          <h2>Multas del usuario</h2>
+    <main class="main-content">
+        <div class="info-card">
+            <h2>Gestión de multas</h2>
+            <p class="subtitle">Registra y controla las multas emitidas a los usuarios por retrasos u otros motivos.</p>
 
-          <p>Aquí podrás consultar todas las multas asociadas a tu cuenta.</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 12px; border-radius: 4px; font-weight: bold; border: 1px solid;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Préstamo asociado</th>
+                            <th>Monto</th>
+                            <th>Motivo</th>
+                            <th>Estado de pago</th>
+                            <th>Fecha de multa</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in multas %}
+                        <tr>
+                            <td>{{ m.id }}</td>
+                            <td>{{ m.usuario.nombre }}<br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ m.usuario.correo }}</span></td>
+                            <td>
+                                {% if m.prestamo %}
+                                    Préstamo #{{ m.prestamo.id }}: {{ m.prestamo.libro.titulo }}
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-style: italic;">Sin préstamo asociado</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>${{ "%.2f"|format(m.monto) }}</strong></td>
+                            <td>{{ m.motivo or 'N/A' }}</td>
+                            <td>
+                                <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; 
+                                    background-color: {% if m.pagada %}#2ecc71{% else %}#e74c3c{% endif %}; color: white;">
+                                    {% if m.pagada %}Pagada{% else %}Pendiente{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ m.fecha_multa.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <button class="btn-action-edit" 
+                                        data-id="{{ m.id }}"
+                                        data-usuario_id="{{ m.usuario_id }}"
+                                        data-prestamo_id="{{ m.prestamo_id or '' }}"
+                                        data-monto="{{ m.monto }}"
+                                        data-motivo="{{ m.motivo or '' }}"
+                                        data-pagada="{{ m.pagada }}"
+                                        onclick="editMulta(this)">Editar</button>
+                                <button class="btn-action-delete" onclick="confirmDelete('{{ m.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center; color: var(--text-muted);">No hay multas registradas. ¡Usa el botón flotante para agregar una!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </section>
     </main>
-  </body>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-btn-add" title="Registrar Multa" onclick="openModal('addModal')">+</button>
+        <button class="fab-btn fab-btn-delete" title="Eliminar Multa" onclick="openModal('deleteModal')">🗑</button>
+    </div>
+
+    <!-- REGISTER MULTA MODAL -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            <h3 class="modal-title">Registrar nueva multa</h3>
+            <form action="{{ url_for('multas_add') }}" method="POST">
+                <div class="form-group">
+                    <label for="add_usuario">Lector / Usuario *</label>
+                    <select id="add_usuario" name="usuario_id" class="form-control" required>
+                        <option value="">-- Seleccionar usuario --</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.nombre }} ({{ u.correo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_prestamo">Préstamo asociado (Opcional)</label>
+                    <select id="add_prestamo" name="prestamo_id" class="form-control">
+                        <option value="">-- Ninguno / General --</option>
+                        {% for p in prestamos %}
+                            <option value="{{ p.id }}">Préstamo #{{ p.id }} (Lector: {{ p.usuario.nombre }} - Libro: {{ p.libro.titulo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_monto">Monto de la multa ($) *</label>
+                    <input type="number" id="add_monto" name="monto" class="form-control" step="0.01" min="0.01" value="1.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_motivo">Motivo *</label>
+                    <input type="text" id="add_motivo" name="motivo" class="form-control" placeholder="Ej. Retraso en devolución" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="add_pagada" name="pagada" value="true">
+                        Marcar como PAGADA de inmediato
+                    </label>
+                </div>
+                <button type="submit" class="btn-submit">Guardar registro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT MULTA MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h3 class="modal-title">Editar multa</h3>
+            <form id="edit_form" action="" method="POST">
+                <div class="form-group">
+                    <label for="edit_usuario">Lector / Usuario *</label>
+                    <select id="edit_usuario" name="usuario_id" class="form-control" required>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.nombre }} ({{ u.correo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_prestamo">Préstamo asociado (Opcional)</label>
+                    <select id="edit_prestamo" name="prestamo_id" class="form-control">
+                        <option value="">-- Ninguno --</option>
+                        {% for p in todos_prestamos %}
+                            <option value="{{ p.id }}">Préstamo #{{ p.id }} (Lector: {{ p.usuario.nombre }} - Libro: {{ p.libro.titulo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_monto">Monto de la multa ($) *</label>
+                    <input type="number" id="edit_monto" name="monto" class="form-control" step="0.01" min="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_motivo">Motivo *</label>
+                    <input type="text" id="edit_motivo" name="motivo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="edit_pagada" name="pagada" value="true">
+                        Marcar como PAGADA
+                    </label>
+                </div>
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DELETE MULTA MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3 class="modal-title" style="color: #e74c3c;">Eliminar Multa</h3>
+            <form action="{{ url_for('multas_delete') }}" method="POST">
+                <div class="form-group">
+                    <label for="delete_id">Seleccione la multa a eliminar:</label>
+                    <select name="id" id="delete_id" class="form-control" required>
+                        {% for m in multas %}
+                            <option value="{{ m.id }}">ID {{ m.id }}: {{ m.usuario.nombre }} - ${{ "%.2f"|format(m.monto) }} ({{ m.motivo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #e74c3c;">Confirmar eliminación</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca virtual</p>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function editMulta(btn) {
+            const id = btn.getAttribute('data-id');
+            const usuario_id = btn.getAttribute('data-usuario_id');
+            const prestamo_id = btn.getAttribute('data-prestamo_id');
+            const monto = btn.getAttribute('data-monto');
+            const motivo = btn.getAttribute('data-motivo');
+            const pagada = btn.getAttribute('data-pagada');
+
+            document.getElementById('edit_form').action = "/multas/edit/" + id;
+            document.getElementById('edit_usuario').value = usuario_id;
+            document.getElementById('edit_prestamo').value = prestamo_id;
+            document.getElementById('edit_monto').value = monto;
+            document.getElementById('edit_motivo').value = motivo;
+            
+            // Handle checkbox checked state
+            var isPagada = (pagada === 'True' || pagada === 'true' || pagada === '1' || pagada === true);
+            document.getElementById('edit_pagada').checked = isPagada;
+            
+            openModal('editModal');
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('delete_id').value = id;
+            openModal('deleteModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+</body>
 </html>

@@ -1,46 +1,203 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autores</title>
-    <link rel="stylesheet" href="../static/styles.css" />
-  </head>
-
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
     <header class="header">
-      <div class="contenedor">
-        <div class="barra">
-          <div class="logo">
-            <a href="index.html">
-              <img src="../static/img/header.jpg" alt="Biblioteca" />
-            </a>
-          </div>
-
-          <nav class="navegacion">
-            <h1 class="titulo">Sistema de Biblioteca</h1>
-
-            <div class="menu">
-               <a href="{{ url_for('dashboard') }}">Inicio</a>
-              <a href="{{ url_for('libros') }}">Libros</a>
-              <a href="{{ url_for('autores') }}">Autores</a>
-              <a href="{{ url_for('prestamos') }}">Préstamos</a>
-              <a href="{{ url_for('multas') }}">Multas</a>
-              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
             </div>
-          </nav>
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
+            </nav>
         </div>
-      </div>
     </header>
 
-    <main class="main">
-      <section class="contenedor seccion">
-        <div class="contenido-principal">
-          <h2>Autores</h2>
+    <main class="main-content">
+        <div class="info-card">
+            <h2>Catálogo de autores</h2>
+            <p class="subtitle">Registra y administra los autores de las obras literarias de la biblioteca.</p>
 
-          <p>Consulta información sobre los autores registrados.</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 12px; border-radius: 4px; font-weight: bold; border: 1px solid;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre completo</th>
+                            <th>Nacionalidad</th>
+                            <th>Fecha de nacimiento</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in autores %}
+                        <tr>
+                            <td>{{ a.id }}</td>
+                            <td><strong>{{ a.nombre }}</strong></td>
+                            <td>{{ a.nacionalidad or 'N/A' }}</td>
+                            <td>{{ a.fecha_nacimiento or 'N/A' }}</td>
+                            <td>
+                                <button class="btn-action-edit" 
+                                        data-id="{{ a.id }}"
+                                        data-nombre="{{ a.nombre }}"
+                                        data-nacionalidad="{{ a.nacionalidad or '' }}"
+                                        data-fecha="{{ a.fecha_nacimiento or '' }}"
+                                        onclick="editAutor(this)">Editar</button>
+                                <button class="btn-action-delete" onclick="confirmDelete('{{ a.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">No hay autores registrados. ¡Usa el botón flotante para agregar uno!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-      </section>
     </main>
-  </body>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-btn-add" title="Agregar Autor" onclick="openModal('addModal')">+</button>
+        <button class="fab-btn fab-btn-delete" title="Eliminar Autor" onclick="openModal('deleteModal')">🗑</button>
+    </div>
+
+    <!-- ADD AUTOR MODAL -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            <h3 class="modal-title">Registrar nuevo autor</h3>
+            <form action="{{ url_for('autores_add') }}" method="POST">
+                <div class="form-group">
+                    <label for="add_nombre">Nombre completo *</label>
+                    <input type="text" id="add_nombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_nacionalidad">Nacionalidad</label>
+                    <input type="text" id="add_nacionalidad" name="nacionalidad" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_fecha">Fecha de nacimiento</label>
+                    <input type="date" id="add_fecha" name="fecha_nacimiento" class="form-control">
+                </div>
+                <button type="submit" class="btn-submit">Guardar registro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT AUTOR MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h3 class="modal-title">Editar autor</h3>
+            <form id="edit_form" action="" method="POST">
+                <div class="form-group">
+                    <label for="edit_nombre">Nombre completo *</label>
+                    <input type="text" id="edit_nombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_nacionalidad">Nacionalidad</label>
+                    <input type="text" id="edit_nacionalidad" name="nacionalidad" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_fecha">Fecha de nacimiento</label>
+                    <input type="date" id="edit_fecha" name="fecha_nacimiento" class="form-control">
+                </div>
+                <button type="submit" class="btn-submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DELETE AUTOR MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3 class="modal-title" style="color: #e74c3c;">Eliminar autor</h3>
+            <form action="{{ url_for('autores_delete') }}" method="POST">
+                <div class="form-group">
+                    <label for="delete_id">Seleccione el autor a eliminar:</label>
+                    <select name="id" id="delete_id" class="form-control" required>
+                        {% for a in autores %}
+                            <option value="{{ a.id }}">{{ a.nombre }} ({{ a.nacionalidad or 'Sin nacionalidad' }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #e74c3c;">Confirmar eliminación</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca virtual</p>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function editAutor(btn) {
+            const id = btn.getAttribute('data-id');
+            const nombre = btn.getAttribute('data-nombre');
+            const nacionalidad = btn.getAttribute('data-nacionalidad');
+            const fecha = btn.getAttribute('data-fecha');
+
+            document.getElementById('edit_form').action = "/autores/edit/" + id;
+            document.getElementById('edit_nombre').value = nombre;
+            document.getElementById('edit_nacionalidad').value = nacionalidad;
+            document.getElementById('edit_fecha').value = fecha;
+            openModal('editModal');
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('delete_id').value = id;
+            openModal('deleteModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+</body>
 </html>

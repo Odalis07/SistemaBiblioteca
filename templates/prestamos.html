@@ -4,61 +4,261 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Préstamos</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
-
-<header class="header">
-
-    <div class="contenedor">
-
-        <div class="barra">
-
-            <div class="logo">
-                <a href="index.html">
-                    <img src="../static/img/header.jpg" alt="Biblioteca">
-                </a>
+    <header class="header">
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
             </div>
-
-            <nav class="navegacion">
-
-                <h1 class="titulo">Sistema de Biblioteca</h1>
-
-                  <div class="menu">
-               <a href="{{ url_for('dashboard') }}">Inicio</a>
-              <a href="{{ url_for('libros') }}">Libros</a>
-              <a href="{{ url_for('autores') }}">Autores</a>
-              <a href="{{ url_for('prestamos') }}">Préstamos</a>
-              <a href="{{ url_for('multas') }}">Multas</a>
-              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
-            </div>
-
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
             </nav>
-
         </div>
+    </header>
 
+    <main class="main-content">
+        <div class="info-card">
+            <h2>Gestión de préstamos</h2>
+            <p class="subtitle">Administra los préstamos de libros, fechas límite y devoluciones.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 12px; border-radius: 4px; font-weight: bold; border: 1px solid;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Libro prestado</th>
+                            <th>Fecha préstamo</th>
+                            <th>Fecha devolución</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in prestamos %}
+                        <tr>
+                            <td>{{ p.id }}</td>
+                            <td>{{ p.usuario.nombre }} <br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ p.usuario.correo }}</span></td>
+                            <td><strong>{{ p.libro.titulo }}</strong> <br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ p.libro.autor }}</span></td>
+                            <td>{{ p.fecha_prestamo.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ p.fecha_devolucion.strftime('%Y-%m-%d') if p.fecha_devolucion else 'Pendiente' }}</td>
+                            <td>
+                                <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; 
+                                    background-color: {% if p.estado == 'activo' %}#e74c3c{% else %}#2ecc71{% endif %}; color: white;">
+                                    {{ p.estado }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn-action-edit" 
+                                        data-id="{{ p.id }}"
+                                        data-usuario_id="{{ p.usuario_id }}"
+                                        data-libro_id="{{ p.libro_id }}"
+                                        data-fecha_p="{{ p.fecha_prestamo.strftime('%Y-%m-%d') }}"
+                                        data-fecha_d="{{ p.fecha_devolucion.strftime('%Y-%m-%d') if p.fecha_devolucion else '' }}"
+                                        data-estado="{{ p.estado }}"
+                                        onclick="editPrestamo(this)">Editar</button>
+                                <button class="btn-action-delete" onclick="confirmDelete('{{ p.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted);">No hay préstamos registrados. ¡Usa el botón flotante para agregar uno!</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-btn-add" title="Registrar Préstamo" onclick="openModal('addModal')">+</button>
+        <button class="fab-btn fab-btn-delete" title="Eliminar Préstamo" onclick="openModal('deleteModal')">🗑</button>
     </div>
 
-</header>
-
-<main class="main">
-
-    <section class="contenedor seccion">
-
-        <div class="contenido-principal">
-
-            <h2>Gestión de Préstamos</h2>
-
-            <p>
-                Administra préstamos y devoluciones de libros.
-            </p>
-
+    <!-- REGISTER PRESTAMO MODAL -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            <h3 class="modal-title">Registrar nuevo préstamo</h3>
+            <form action="{{ url_for('prestamos_add') }}" method="POST">
+                <div class="form-group">
+                    <label for="add_usuario">Lector / Usuario *</label>
+                    <select id="add_usuario" name="usuario_id" class="form-control" required>
+                        <option value="">-- Seleccionar usuario --</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.nombre }} ({{ u.correo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_libro">Libro a prestar (Con stock disponible) *</label>
+                    <select id="add_libro" name="libro_id" class="form-control" required>
+                        <option value="">-- Seleccionar Libro --</option>
+                        {% for l in libros %}
+                            <option value="{{ l.id }}">{{ l.titulo }} (Stock: {{ l.stock }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add_fecha_p">Fecha de préstamo *</label>
+                    <input type="date" id="add_fecha_p" name="fecha_prestamo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_fecha_d">Fecha límite de devolución</label>
+                    <input type="date" id="add_fecha_d" name="fecha_devolucion" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_estado">Estado inicial</label>
+                    <select id="add_estado" name="estado" class="form-control">
+                        <option value="activo">Activo (En curso)</option>
+                        <option value="devuelto">Devuelto de inmediato</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Guardar registro</button>
+            </form>
         </div>
+    </div>
 
-    </section>
+    <!-- EDIT PRESTAMO MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h3 class="modal-title">Editar préstamo</h3>
+            <form id="edit_form" action="" method="POST">
+                <div class="form-group">
+                    <label for="edit_usuario">Lector / Usuario *</label>
+                    <select id="edit_usuario" name="usuario_id" class="form-control" required>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.nombre }} ({{ u.correo }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_libro">Libro prestado *</label>
+                    <select id="edit_libro" name="libro_id" class="form-control" required>
+                        {% for l in todos_libros %}
+                            <option value="{{ l.id }}">{{ l.titulo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_fecha_p">Fecha de préstamo *</label>
+                    <input type="date" id="edit_fecha_p" name="fecha_prestamo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_fecha_d">Fecha límite de devolución</label>
+                    <input type="date" id="edit_fecha_d" name="fecha_devolucion" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_estado">Estado</label>
+                    <select id="edit_estado" name="estado" class="form-control">
+                        <option value="activo">Activo (Sin devolver)</option>
+                        <option value="devuelto">Devuelto (Stock restablecido)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
 
-</main>
+    <!-- DELETE PRESTAMO MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3 class="modal-title" style="color: #e74c3c;">Eliminar préstamo</h3>
+            <form action="{{ url_for('prestamos_delete') }}" method="POST">
+                <div class="form-group">
+                    <label for="delete_id">Seleccione el préstamo a eliminar:</label>
+                    <select name="id" id="delete_id" class="form-control" required>
+                        {% for p in prestamos %}
+                            <option value="{{ p.id }}">ID {{ p.id }}: {{ p.usuario.nombre }} - {{ p.libro.titulo }} ({{ p.estado }})</option>
+                        {% endfor %}
+                    </select>
+                    <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 10px; font-weight: bold;">
+                        Nota: Eliminar un préstamo activo restaurará automáticamente el stock del libro y desvinculará sus multas asociadas.
+                    </p>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #e74c3c;">Confirmar eliminación</button>
+            </form>
+        </div>
+    </div>
 
+    <footer class="footer">
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca virtual</p>
+        </div>
+    </footer>
+
+    <script>
+        // Set default date to today in the add form
+        document.getElementById('add_fecha_p').value = new Date().toISOString().substring(0, 10);
+
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function editPrestamo(btn) {
+            const id = btn.getAttribute('data-id');
+            const usuario_id = btn.getAttribute('data-usuario_id');
+            const libro_id = btn.getAttribute('data-libro_id');
+            const fecha_p = btn.getAttribute('data-fecha_p');
+            const fecha_d = btn.getAttribute('data-fecha_d');
+            const estado = btn.getAttribute('data-estado');
+
+            document.getElementById('edit_form').action = "/prestamos/edit/" + id;
+            document.getElementById('edit_usuario').value = usuario_id;
+            document.getElementById('edit_libro').value = libro_id;
+            document.getElementById('edit_fecha_p').value = fecha_p;
+            document.getElementById('edit_fecha_d').value = fecha_d;
+            document.getElementById('edit_estado').value = estado;
+            openModal('editModal');
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('delete_id').value = id;
+            openModal('deleteModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

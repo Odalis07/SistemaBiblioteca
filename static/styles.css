@@ -1,13 +1,13 @@
 :root {
-  --primary-color: #2c3e50;
-  --accent-color: #3498db;
-  --accent-hover: #2980b9;
-  --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --primary-color: #618EA3;
+  --accent-color: #4a758a;
+  --accent-hover: #37596a;
+  --bg-gradient: linear-gradient(135deg, #f0f4f7 0%, #cfdde3 100%);
   --card-bg: #ffffff;
   --text-color: #333333;
-  --text-muted: #7f8c8d;
-  --border-color: #e0e0e0;
-  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --text-muted: #62747a;
+  --border-color: #d2dee2;
+  --shadow: 0 10px 25px rgba(97, 142, 163, 0.08);
   --radius: 8px;
   --transition: all 0.3s ease;
 }
@@ -39,59 +39,82 @@ body {
 
 .header {
   background-color: var(--primary-color);
-  padding: 15px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 15px 0 0 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.barra {
+.header-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .logo img {
-  height: 50px;
+  height: 38px;
   width: auto;
-  border-radius: var(--radius);
   transition: var(--transition);
   display: block;
 }
 
 .logo img:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
-.navegacion {
+.usuario-acciones {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
 }
 
-.titulo {
-  color: #ffffff;
-  font-size: 1.4rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-}
-
-.menu {
+.icono-accion {
   display: flex;
-  gap: 25px;
+  align-items: center;
+  justify-content: center;
 }
 
-.menu a {
-  color: #cbd5e1;
+.icono-accion img {
+  height: 24px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  transition: opacity 0.2s;
+}
+
+.icono-accion img:hover {
+  opacity: 0.85;
+}
+
+.navegacion-inferior {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0 12px 0;
+}
+
+.nav-item {
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  padding: 6px 0;
-  border-bottom: 2px solid transparent;
-  transition: var(--transition);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 5px 15px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
 }
 
-.menu a:hover {
+.nav-item:hover {
   color: #ffffff;
-  border-bottom: 2px solid var(--accent-color);
+}
+
+.nav-item.active {
+  color: #ffffff;
+  border-bottom: 3px solid #ffffff;
 }
 
 .main {
@@ -141,3 +164,241 @@ body {
   font-size: 0.9rem;
   font-weight: 400;
 }
+
+/* ==========================================
+   CRUD Table, Modal, and FAB floating styles
+   ========================================== */
+
+/* Main Layout override for tables */
+.main-content {
+  flex: 1;
+  padding: 40px 0;
+  background: var(--bg-gradient);
+}
+
+.info-card {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 1200px;
+  margin: 30px auto;
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th, .data-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.data-table tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Actions in tables */
+.btn-action-edit {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 5px;
+  transition: background-color 0.2s;
+}
+
+.btn-action-edit:hover {
+  background-color: #d68910;
+}
+
+.btn-action-delete {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.btn-action-delete:hover {
+  background-color: #c0392b;
+}
+
+/* FAB Floating Buttons */
+.fab-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 999;
+}
+
+.fab-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.fab-btn:hover {
+  transform: scale(1.1);
+}
+
+.fab-btn-add {
+  background-color: #2ecc71;
+}
+
+.fab-btn-add:hover {
+  background-color: #27ae60;
+}
+
+.fab-btn-delete {
+  background-color: #e74c3c;
+}
+
+.fab-btn-delete:hover {
+  background-color: #c0392b;
+}
+
+/* Modals */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background-color: #ffffff;
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 500px;
+  animation: modalOpen 0.3s ease;
+}
+
+@keyframes modalOpen {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.close-btn {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 20px;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.modal-title {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+/* Forms inside Modals */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  background-color: #f8fafc;
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  background-color: #ffffff;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: var(--accent-hover);
+}
+

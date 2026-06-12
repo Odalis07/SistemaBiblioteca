@@ -4,59 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Libros</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-
 <body>
-
-<header class="header">
-    <div class="contenedor">
-
-        <div class="barra">
-
-            <div class="logo">
-                <a href="index.html">
-                    <img src="../static/img/header.jpg" alt="Biblioteca">
-                </a>
+    <header class="header">
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
             </div>
-
-            <nav class="navegacion">
-
-                <h1 class="titulo">Sistema de Biblioteca</h1>
-
-                  <div class="menu">
-               <a href="{{ url_for('dashboard') }}">Inicio</a>
-              <a href="{{ url_for('libros') }}">Libros</a>
-              <a href="{{ url_for('autores') }}">Autores</a>
-              <a href="{{ url_for('prestamos') }}">Préstamos</a>
-              <a href="{{ url_for('multas') }}">Multas</a>
-              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
-            </div>
-
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
             </nav>
-
         </div>
+    </header>
 
+    <main class="main-content">
+        <div class="info-card">
+            <h2>Gestión de libros disponibles</h2>
+            <p class="subtitle">Visualiza, agrega, edita y elimina libros de la colección de la biblioteca.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 12px; border-radius: 4px; font-weight: bold; border: 1px solid;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Editorial</th>
+                            <th>Categoría</th>
+                            <th>ISBN</th>
+                            <th>Stock</th>
+                            <th>Año</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in libros %}
+                        <tr>
+                            <td>{{ l.id }}</td>
+                            <td><strong>{{ l.titulo }}</strong></td>
+                            <td>{{ l.autor }}</td>
+                            <td>{{ l.editorial or 'N/A' }}</td>
+                            <td>{{ l.categoria or 'N/A' }}</td>
+                            <td><code>{{ l.isbn or 'N/A' }}</code></td>
+                            <td>{{ l.stock }}</td>
+                            <td>{{ l.anio_publicacion or 'N/A' }}</td>
+                            <td>
+                                <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; 
+                                    background-color: {% if l.estado == 'disponible' %}#2ecc71{% elif l.estado == 'prestado' %}#3498db{% else %}#e74c3c{% endif %}; color: white;">
+                                    {{ l.estado }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn-action-edit" 
+                                        data-id="{{ l.id }}"
+                                        data-titulo="{{ l.titulo }}"
+                                        data-autor="{{ l.autor }}"
+                                        data-editorial="{{ l.editorial or '' }}"
+                                        data-categoria="{{ l.categoria or '' }}"
+                                        data-isbn="{{ l.isbn or '' }}"
+                                        data-stock="{{ l.stock }}"
+                                        data-anio="{{ l.anio_publicacion or '' }}"
+                                        data-estado="{{ l.estado }}"
+                                        onclick="editLibro(this)">Editar</button>
+                                <button class="btn-action-delete" onclick="confirmDelete('{{ l.id }}')">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Buttons (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn fab-btn-add" title="Agregar Libro" onclick="openModal('addModal')">+</button>
+        <button class="fab-btn fab-btn-delete" title="Eliminar Libro" onclick="openModal('deleteModal')">🗑</button>
     </div>
-</header>
 
-<main class="main">
-
-    <section class="contenedor seccion">
-
-        <div class="contenido-principal">
-
-            <h2>Libros Disponibles</h2>
-
-            <p>
-                Aquí podrás consultar todos los libros disponibles en la biblioteca.
-            </p>
-
+    <!-- ADD LIBRO MODAL -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('addModal')">&times;</span>
+            <h3 class="modal-title">Agregar nuevo libro</h3>
+            <form action="{{ url_for('libros_add') }}" method="POST">
+                <div class="form-group">
+                    <label for="add_titulo">Título del libro *</label>
+                    <input type="text" id="add_titulo" name="titulo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_autor">Autor *</label>
+                    <input type="text" id="add_autor" name="autor" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_editorial">Editorial</label>
+                    <input type="text" id="add_editorial" name="editorial" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_categoria">Categoría</label>
+                    <input type="text" id="add_categoria" name="categoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_isbn">ISBN</label>
+                    <input type="text" id="add_isbn" name="isbn" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="add_stock">Stock disponible *</label>
+                    <input type="number" id="add_stock" name="stock" class="form-control" min="0" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="add_anio">Año de publicación</label>
+                    <input type="number" id="add_anio" name="anio_publicacion" class="form-control" min="1000" max="2100">
+                </div>
+                <div class="form-group">
+                    <label for="add_estado">Estado</label>
+                    <select id="add_estado" name="estado" class="form-control">
+                        <option value="disponible">Disponible</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                        <option value="prestado">Prestado (Sin stock)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Guardar registro</button>
+            </form>
         </div>
+    </div>
 
-    </section>
+    <!-- EDIT LIBRO MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h3 class="modal-title">Editar libro</h3>
+            <form id="edit_form" action="" method="POST">
+                <div class="form-group">
+                    <label for="edit_titulo">Título del libro *</label>
+                    <input type="text" id="edit_titulo" name="titulo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_autor">Autor *</label>
+                    <input type="text" id="edit_autor" name="autor" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_editorial">Editorial</label>
+                    <input type="text" id="edit_editorial" name="editorial" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_categoria">Categoría</label>
+                    <input type="text" id="edit_categoria" name="categoria" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_isbn">ISBN</label>
+                    <input type="text" id="edit_isbn" name="isbn" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="edit_stock">Stock disponible *</label>
+                    <input type="number" id="edit_stock" name="stock" class="form-control" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_anio">Año de publicación</label>
+                    <input type="number" id="edit_anio" name="anio_publicacion" class="form-control" min="1000" max="2100">
+                </div>
+                <div class="form-group">
+                    <label for="edit_estado">Estado</label>
+                    <select id="edit_estado" name="estado" class="form-control">
+                        <option value="disponible">Disponible</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                        <option value="prestado">Prestado</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
 
-</main>
+    <!-- DELETE LIBRO MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3 class="modal-title" style="color: #e74c3c;">Eliminar Libro</h3>
+            <form action="{{ url_for('libros_delete') }}" method="POST">
+                <div class="form-group">
+                    <label for="delete_id">Seleccione el libro a eliminar:</label>
+                    <select name="id" id="delete_id" class="form-control" required>
+                        {% for l in libros %}
+                            <option value="{{ l.id }}">{{ l.titulo }} - {{ l.autor }}</option>
+                        {% endfor %}
+                    </select>
+                    <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 10px; font-weight: bold;">
+                        ¡Advertencia! Se eliminarán también todos los préstamos históricos relacionados a este libro.
+                    </p>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #e74c3c;">Confirmar eliminación</button>
+            </form>
+        </div>
+    </div>
 
+    <footer class="footer">
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca virtual</p>
+        </div>
+    </footer>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = "block";
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function editLibro(btn) {
+            const id = btn.getAttribute('data-id');
+            const titulo = btn.getAttribute('data-titulo');
+            const autor = btn.getAttribute('data-autor');
+            const editorial = btn.getAttribute('data-editorial');
+            const categoria = btn.getAttribute('data-categoria');
+            const isbn = btn.getAttribute('data-isbn');
+            const stock = btn.getAttribute('data-stock');
+            const anio = btn.getAttribute('data-anio');
+            const estado = btn.getAttribute('data-estado');
+
+            document.getElementById('edit_form').action = "/libros/edit/" + id;
+            document.getElementById('edit_titulo').value = titulo;
+            document.getElementById('edit_autor').value = autor;
+            document.getElementById('edit_editorial').value = editorial;
+            document.getElementById('edit_categoria').value = categoria;
+            document.getElementById('edit_isbn').value = isbn;
+            document.getElementById('edit_stock').value = stock;
+            document.getElementById('edit_anio').value = anio;
+            document.getElementById('edit_estado').value = estado;
+            openModal('editModal');
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('delete_id').value = id;
+            openModal('deleteModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.className === "modal") {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,54 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inicio | Biblioteca</title>
-    <link rel="stylesheet" href="../static/styles.css" />
-  </head>
-
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio | Sistema de Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
     <header class="header">
-      <div class="contenedor">
-        <div class="barra">
-          <div class="logo">
-            <a href="index.html">
-              <img src="../static/img/header.jpg" alt="Biblioteca" />
-            </a>
-          </div>
-
-          <nav class="navegacion">
-            <h1 class="titulo">Sistema de Biblioteca</h1>
-
-            <div class="menu">
-              <a href="{{ url_for('dashboard') }}">Inicio</a>
-              <a href="{{ url_for('libros') }}">Libros</a>
-              <a href="{{ url_for('autores') }}">Autores</a>
-              <a href="{{ url_for('prestamos') }}">Préstamos</a>
-              <a href="{{ url_for('multas') }}">Multas</a>
-              <a href="{{ url_for('logout') }}" style="color: #e74c3c">Salir</a>
+        <div class="contenedor header-grid">
+            <div class="header-top">
+                <div class="logo">
+                    <a href="{{ url_for('dashboard') }}">
+                        <img src="{{ url_for('static', filename='img/logo_biblioteca.svg') }}" alt="BIBLIOTECA">
+                    </a>
+                </div>
+                <div class="usuario-acciones">
+                    <a href="#" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/subway_bell.svg') }}" alt="Notificaciones">
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="icono-accion">
+                        <img src="{{ url_for('static', filename='img/ion_person-sharp.svg') }}" alt="Cerrar Sesión">
+                    </a>
+                </div>
             </div>
-          </nav>
+            <nav class="navegacion-inferior">
+                <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">Inicio</a>
+                <a href="{{ url_for('libros') }}" class="nav-item {% if request.endpoint == 'libros' %}active{% endif %}">Libros</a>
+                <a href="{{ url_for('autores') }}" class="nav-item {% if request.endpoint == 'autores' %}active{% endif %}">Autores</a>
+                <a href="{{ url_for('prestamos') }}" class="nav-item {% if request.endpoint == 'prestamos' %}active{% endif %}">Préstamos</a>
+                <a href="{{ url_for('multas') }}" class="nav-item {% if request.endpoint == 'multas' %}active{% endif %}">Multas</a>
+                <a href="{{ url_for('usuarios') }}" class="nav-item {% if request.endpoint == 'usuarios' %}active{% endif %}">Usuarios</a>
+            </nav>
         </div>
-      </div>
     </header>
 
-    <main class="main">
-      <section class="contenedor seccion">
-        <div class="contenido-principal">
-          <h2>Bienvenido a la Biblioteca</h2>
-          <p>
-            Explora nuestra colección de libros, administra tus autores,
-            gestiona préstamos y revisa el estado de tus multas fácilmente.
-          </p>
+    <main class="main-content">
+        <div class="info-card">
+            <h2>¡Bienvenido, {{ current_user.nombre }}!</h2>
+            <p class="subtitle">Selecciona una opción del menú superior para comenzar a administrar los recursos.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="margin: 15px 0; padding: 10px; border-radius: 4px;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div style="margin-top: 30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <div style="border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; width: 200px; background: #fafafa;">
+                    <h3 style="color: var(--primary-color);">Libros</h3>
+                    <p style="color: var(--text-muted);">Control de existencias</p>
+                </div>
+                <div style="border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; width: 200px; background: #fafafa;">
+                    <h3 style="color: var(--primary-color);">Préstamos</h3>
+                    <p style="color: var(--text-muted);">Flujo de lecturas</p>
+                </div>
+                <div style="border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; width: 200px; background: #fafafa;">
+                    <h3 style="color: var(--primary-color);">Autores</h3>
+                    <p style="color: var(--text-muted);">Catálogo de autores</p>
+                </div>
+                <div style="border: 1px solid var(--border-color); padding: 20px; border-radius: 8px; width: 200px; background: #fafafa;">
+                    <h3 style="color: var(--primary-color);">Multas</h3>
+                    <p style="color: var(--text-muted);">Control de sanciones</p>
+                </div>
+            </div>
         </div>
-      </section>
     </main>
 
     <footer class="footer">
-      <div class="contenedor footer-contenido">
-        <p>© 2026 Biblioteca Virtual</p>
-      </div>
+        <div class="contenedor footer-contenido">
+            <p>© 2026 Biblioteca Virtual</p>
+        </div>
     </footer>
-  </body>
+</body>
 </html>
